@@ -29,23 +29,23 @@ module.exports = class PrefixCommand extends Command {
 		});
 	}
 
-	async run(msg, args) {
+	async run(ctx, args) {
 		// Just output the prefix
 		if(!args.prefix) {
-			const prefix = msg.guild ? msg.guild.commandPrefix : this.client.commandPrefix;
-			return msg.reply(stripIndents`
+			const prefix = ctx.guild ? ctx.contextGuild.commandPrefix : this.client.commandPrefix;
+			return ctx.reply(stripIndents`
 				${prefix ? `The command prefix is \`\`${prefix}\`\`.` : 'There is no command prefix.'}
-				To run commands, use ${msg.anyUsage('command')}.
+				To run commands, use ${ctx.anyUsage('command')}.
 			`);
 		}
 
 		// Check the user's permission before changing anything
-		if(msg.guild) {
-			if(!msg.member.permissions.has('ADMINISTRATOR') && !this.client.isOwner(msg.author)) {
-				return msg.reply('Only administrators may change the command prefix.');
+		if(ctx.guild) {
+			if(!ctx.member.permissions.has('ADMINISTRATOR') && !this.client.isOwner(ctx.author)) {
+				return ctx.reply('Only administrators may change the command prefix.');
 			}
-		} else if(!this.client.isOwner(msg.author)) {
-			return msg.reply('Only the bot owner(s) may change the global command prefix.');
+		} else if(!this.client.isOwner(ctx.author)) {
+			return ctx.reply('Only the bot owner(s) may change the global command prefix.');
 		}
 
 		// Save the prefix
@@ -53,15 +53,15 @@ module.exports = class PrefixCommand extends Command {
 		const prefix = lowercase === 'none' ? '' : args.prefix;
 		let response;
 		if(lowercase === 'default') {
-			if(msg.guild) msg.guild.commandPrefix = null; else this.client.commandPrefix = null;
+			if(ctx.guild) ctx.contextGuild.commandPrefix = null; else this.client.commandPrefix = null;
 			const current = this.client.commandPrefix ? `\`\`${this.client.commandPrefix}\`\`` : 'no prefix';
 			response = `Reset the command prefix to the default (currently ${current}).`;
 		} else {
-			if(msg.guild) msg.guild.commandPrefix = prefix; else this.client.commandPrefix = prefix;
+			if(ctx.guild) ctx.contextGuild.commandPrefix = prefix; else this.client.commandPrefix = prefix;
 			response = prefix ? `Set the command prefix to \`\`${args.prefix}\`\`.` : 'Removed the command prefix entirely.';
 		}
 
-		await msg.reply(`${response} To run commands, use ${msg.anyUsage('command')}.`);
+		await ctx.reply(`${response} To run commands, use ${ctx.anyUsage('command')}.`);
 		return null;
 	}
 };

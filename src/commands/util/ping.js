@@ -15,14 +15,15 @@ module.exports = class PingCommand extends Command {
 		});
 	}
 
-	async run(msg) {
-		const pingMsg = await msg.reply('Pinging...');
-		return pingMsg.edit(oneLine`
-			${msg.channel.type !== 'dm' ? `${msg.author},` : ''}
+	async run(ctx) {
+		const pingMsg = await ctx.reply('Pinging...');
+		return pingMsg.edit({ content: oneLine`
+			${ctx.channel.type !== 'dm' ? `${ctx.author},` : ''}
 			Pong! The message round-trip took ${
-				(pingMsg.editedTimestamp || pingMsg.createdTimestamp) - (msg.editedTimestamp || msg.createdTimestamp)
+				(pingMsg.editedTimestamp || pingMsg.createdTimestamp) -
+				(ctx.message.editedTimestamp || ctx.message.createdTimestamp)
 			}ms.
 			${this.client.ws.ping ? `The heartbeat ping is ${Math.round(this.client.ws.ping)}ms.` : ''}
-		`);
+		`, allowedMentions: { repliedUser: false } });
 	}
 };

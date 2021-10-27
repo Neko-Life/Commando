@@ -2,7 +2,7 @@ const path = require('path');
 const discord = require('discord.js');
 const Command = require('./commands/base');
 const CommandGroup = require('./commands/group');
-const CommandoMessage = require('./extensions/message');
+const Context = require('./extensions/context');
 const ArgumentType = require('./types/base');
 
 /** Handles registration and searching of commands and groups */
@@ -525,7 +525,7 @@ class CommandoRegistry {
 	 */
 	resolveCommand(command) {
 		if(command instanceof Command) return command;
-		if(command instanceof CommandoMessage && command.command) return command.command;
+		if(command instanceof Context && command.command) return command.command;
 		if(typeof command === 'string') {
 			const commands = this.findCommands(command, true);
 			if(commands.length === 1) return commands[0];

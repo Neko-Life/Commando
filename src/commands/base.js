@@ -2,6 +2,7 @@ const path = require('path');
 const { oneLine, stripIndents } = require('common-tags');
 const ArgumentCollector = require('./collector');
 const { permissions, escapeMarkdown } = require('../util');
+const CommandoGuild = require('../extensions/guild');
 
 /** A command that can be run in a client */
 class Command {
@@ -279,7 +280,7 @@ class Command {
 
 	/**
 	 * Runs the command
-	 * @param {CommandoMessage} message - The message the command is being run for
+	 * @param {Context} message - The message the command is being run for
 	 * @param {Object|string|string[]} args - The arguments for the command, or the matches from a pattern.
 	 * If args is specified on the command, thise will be the argument values object. If argsType is single, then only
 	 * one string will be passed. If multiple, an array of strings will be passed. When fromPattern is true, this is the
@@ -419,7 +420,7 @@ class Command {
 	isEnabledIn(guild, bypassGroup) {
 		if(this.guarded) return true;
 		if(!guild) return this.group._globalEnabled && this._globalEnabled;
-		guild = this.client.guilds.resolve(guild);
+		guild = CommandoGuild.extend(this.client.guilds.resolve(guild));
 		return (bypassGroup || guild.isGroupEnabled(this.group)) && guild.isCommandEnabled(this);
 	}
 
