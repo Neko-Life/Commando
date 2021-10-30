@@ -2,6 +2,7 @@ const Command = require('../commands/base');
 const GuildSettingsHelper = require('../providers/helper');
 
 const cache = new WeakMap();
+const extenders = new Set();
 /* eslint-disable capitalized-comments */
 
 /**
@@ -28,73 +29,6 @@ module.exports = class CommandoGuild {
 		this._commandPrefix = null;
 	}
 
-	// get afkChannel() { return this.guild.afkChannel; }
-	// get afkChannelId() { return this.guild.afkChannelId; }
-	// get afkTimeout() { return this.guild.afkTimeout; }
-	// get applicationId() { return this.guild.applicationId; }
-	// get approximateMemberCount() { return this.guild.approximateMemberCount; }
-	// get approximatePresenceCount() { return this.guild.approximatePresenceCount; }
-	// get available() { return this.guild.available; }
-	// get banner() { return this.guild.banner; }
-	// get bans() { return this.guild.bans; }
-	// get channels() { return this.guild.channels; }
-	// get commands() { return this.guild.commands; }
-	// get createdAt() { return this.guild.createdAt; }
-	// get createdTimestamp() { return this.guild.createdTimestamp; }
-	// get defaultMessageNotifications() { return this.guild.defaultMessageNotifications; }
-	// get deleted() { return this.guild.deleted; }
-	// get description() { return this.guild.description; }
-	// get discoverySplash() { return this.guild.discoverySplash; }
-	// get emojis() { return this.guild.emojis; }
-	// get explicitContentFilter() { return this.guild.explicitContentFilter; }
-	// get features() { return this.guild.features; }
-	// get icon() { return this.guild.icon; }
-	// get id() { return this.guild.id; }
-	// get invites() { return this.guild.invites; }
-	// get joinedAt() { return this.guild.joinedAt; }
-	// get joinedtimestamp() { return this.guild.joinedtimestamp; }
-	// get large() { return this.guild.large; }
-	// get maximumBitrate() { return this.guild.maximumBitrate; }
-	// get maximumMembers() { return this.guild.maximumMembers; }
-	// get maximumPresences() { return this.guild.maximumPresences; }
-	// get me() { return this.guild.me; }
-	// get memberCount() { return this.guild.memberCount; }
-	// get members() { return this.guild.members; }
-	// get mfaLevel() { return this.guild.mfaLevel; }
-	// get name() { return this.guild.name; }
-	// get nameAcronym() { return this.guild.nameAcronym; }
-	// get nsfwLevel() { return this.guild.nsfwLevel; }
-	// get ownerId() { return this.guild.ownerId; }
-	// get partnered() { return this.guild.partnered; }
-	// get preferredLocale() { return this.guild.preferredLocale; }
-	// get premiumSubscriptionCount() { return this.guild.premiumSubscriptionCount; }
-	// get premiumTier() { return this.guild.premiumTier; }
-	// get presences() { return this.guild.presences; }
-	// get publicUpdatesChannel() { return this.guild.publicUpdatesChannel; }
-	// get publicUpdatesChannelId() { return this.guild.publicUpdatesChannelId; }
-	// get roles() { return this.guild.roles; }
-	// get rulesChannel() { return this.guild.rulesChannel; }
-	// get ruleschannelId() { return this.guild.ruleschannelId; }
-	// get shard() { return this.guild.shard; }
-	// get shardId() { return this.guild.shardId; }
-	// get splash() { return this.guild.splash; }
-	// get stageInstances() { return this.guild.stageInstances; }
-	// get stickers() { return this.guild.stickers; }
-	// get systemChannel() { return this.guild.systemChannel; }
-	// get systemChannelFlags() { return this.guild.systemChannelFlags; }
-	// get systemChannelId() { return this.guild.systemChannelId; }
-	// get vanityURLCode() { return this.guild.vanityURLCode; }
-	// get vanityURLUses() { return this.guild.vanityURLUses; }
-	// get verificationLevel() { return this.guild.verificationLevel; }
-	// get verified() { return this.guild.verified; }
-	// get voiceAdapterCreator() { return this.guild.voiceAdapterCreator; }
-	// get voiceStates() { return this.guild.voiceStates; }
-	// get widgetChannel() { return this.guild.widgetChannel; }
-	// get widgetChannelId() { return this.guild.widgetChannelId; }
-	// get widgetEnabled() { return this.guild.widgetEnabled; }
-
-	// iconURL(data) { return this.guild.iconURL(data); }
-
 	/**
 	 * Extends the set guild, reuses from cache.
 	 * @param {Guild} guild - the guild to extend
@@ -102,9 +36,18 @@ module.exports = class CommandoGuild {
 	 */
 	static extend(guild) {
 		if(cache.has(guild)) return cache.get(guild);
-		const extended = new CommandoGuild(guild);
+		var extended = new CommandoGuild(guild);
+		for(var extender of extenders.values()) extended = extender(extended);
 		cache.set(guild, extended);
 		return extended;
+	}
+
+	static addExtender(extender) {
+		extenders.add(extender);
+	}
+
+	static removeExtender(extender) {
+		extenders.delete(extender);
 	}
 
 	/**

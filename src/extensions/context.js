@@ -7,6 +7,7 @@ const { escapeMarkdown, resolveString } = require('../util');
 const CommandoGuild = require('./guild');
 
 const cache = new WeakMap();
+const extenders = new Set();
 
 /**
  * An extension of the base Discord.js Message class to add command-related functionality.
@@ -75,12 +76,31 @@ module.exports = class Context {
 	 */
 	get content() { return this.message.content; }
 
+	/**
+	 * Extends the message to be the 'context'
+	 * @param {Message} message - the message to extend
+	 * @return {Context}
+	 */
 	static extend(message) {
 		if(message instanceof Context) return message;
 		if(cache.has(message)) return cache.get(message);
-		const extended = new Context(message);
+		var extended = new Context(message);
+		for(var extender of extenders.values()) extended = extender(extended);
 		cache.set(message, extended);
 		return extended;
+	}
+
+	/**
+	 * Adds an 'extender' to add custom properties to context for each message.
+	 * Can easily break commando, only use when you know what you're doing, and don't change the default properties.
+	 * @param {Function} extender - the extender function
+	 */
+	static addExtender(extender) {
+		extenders.add(extender);
+	}
+
+	static removeExtender(extender) {
+		extenders.delete(extender);
 	}
 
 	/**
