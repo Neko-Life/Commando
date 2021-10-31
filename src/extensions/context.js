@@ -117,7 +117,7 @@ module.exports = class Context {
 		this.command = command;
 		this.argString = argString;
 		this.patternMatches = patternMatches;
-		this.alias = alias || command ? command.name : null;
+		this.alias = alias || (command ? command.name : null);
 		return this;
 	}
 
