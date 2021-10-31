@@ -2,7 +2,9 @@ const ArgumentType = require('./base');
 
 class FloatArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'float');
+		super(client, 'float', {
+			type: 'NUMBER'
+		});
 	}
 
 	validate(val, msg, arg) {

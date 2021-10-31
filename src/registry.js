@@ -4,6 +4,9 @@ const Command = require('./commands/base');
 const CommandGroup = require('./commands/group');
 const Context = require('./extensions/context');
 const ArgumentType = require('./types/base');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const { inspect } = require('util');
 
 /** Handles registration and searching of commands and groups */
 class CommandoRegistry {
@@ -17,9 +20,13 @@ class CommandoRegistry {
 		 */
 		Object.defineProperty(this, 'client', { value: client });
 
+		this.rest = new REST({ version: '9' }).setToken(client.token);
+		this.rest.on('restDebug', info => this.client.emit('debug', `[REST] ${info}`));
+		this.rest.on('rateLimited', data => console.warn('Rate limited', data));
+
 		/**
 		 * Registered commands, mapped by their name
-		 * @type {Collection<string, Command>}
+		 * @type {discord.Collection<string, Command>}
 		 */
 		this.commands = new discord.Collection();
 
@@ -52,6 +59,57 @@ class CommandoRegistry {
 		 * @type {?Command}
 		 */
 		this.unknownCommand = null;
+	}
+
+	/**
+	 * @private
+	 * @returns {any[]}
+	 */
+	_prepareCommandsForSlash() {
+		return [...this.commands.values()].filter(command => command.command).map(command => ({
+			name: command.name,
+			description: command.description,
+			defaultPermission: true,
+			type: command.command === true ? 1 : [undefined, 'slash', 'user', 'message'].indexOf(command.command),
+			options: command.argsCollector ?
+				command.argsCollector.args.map(arg => Object.assign({
+					name: arg.key, description: arg.prompt,
+					required: !arg.default
+				}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } : {},
+				arg.slash || {}, (arg.type && arg.type.slash) || {})).map(arg => Object.assign(arg, { type: [
+					undefined, 'SUB_COMMAND', 'SUB_COMMAND_GROUP', 'STRING',
+					'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',
+					'MENTIONABLE', 'NUMBER'
+				].indexOf(arg.type) })) :
+				[]
+		}));
+	}
+
+	/**
+	 * Registers all slash commands in given guild. Use for development purposes.
+	 * @param {GuildResolvable} guild - The guild to register commands in
+	 */
+	async registerSlashInGuild(guild) {
+		const guildId = this.client.guilds.resolveId(guild);
+		this.client.emit('debug', 'Registering slash commands');
+		console.log(inspect(this._prepareCommandsForSlash(), false, 20, true));
+		await this.rest.put(
+			Routes.applicationGuildCommands(this.client.user.id, guildId),
+			{ body: this._prepareCommandsForSlash() }
+		);
+		this.client.emit('debug', `Registered slash commands for guild id ${guildId}`);
+	}
+
+	/**
+	 * Registers all slash commands globally
+	 */
+	async registerSlashGlobally() {
+		this.client.emit('debug', 'Registering slash commands');
+		await this.rest.put(
+			Routes.applicationGuildCommands(this.client.user.id),
+			{ body: this._prepareCommandsForSlash() }
+		);
+		this.client.emit('debug', `Registered slash commands (globally)`);
 	}
 
 	/**

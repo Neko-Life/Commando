@@ -4,7 +4,10 @@ const { escapeMarkdown } = require('discord.js');
 
 class CategoryChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'category-channel');
+		super(client, 'category-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['CATEGORY']
+		});
 	}
 
 	validate(val, msg, arg) {

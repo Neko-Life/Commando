@@ -8,6 +8,7 @@ module.exports = class PingCommand extends Command {
 			group: 'util',
 			memberName: 'ping',
 			description: 'Checks the bot\'s ping to the Discord server.',
+			command: true,
 			throttling: {
 				usages: 5,
 				duration: 10
@@ -20,8 +21,10 @@ module.exports = class PingCommand extends Command {
 		return pingMsg.edit({ content: oneLine`
 			${ctx.channel.type !== 'dm' ? `${ctx.author},` : ''}
 			Pong! The message round-trip took ${
+				ctx.message ?
 				(pingMsg.editedTimestamp || pingMsg.createdTimestamp) -
-				(ctx.message.editedTimestamp || ctx.message.createdTimestamp)
+				(ctx.message.editedTimestamp || ctx.message.createdTimestamp) :
+				pingMsg.createdTimestamp - ctx.interaction.createdTimestamp
 			}ms.
 			${this.client.ws.ping ? `The heartbeat ping is ${Math.round(this.client.ws.ping)}ms.` : ''}
 		`, allowedMentions: { repliedUser: false } });

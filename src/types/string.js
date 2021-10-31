@@ -2,7 +2,9 @@ const ArgumentType = require('./base');
 
 class StringArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'string');
+		super(client, 'string', {
+			type: 'STRING'
+		});
 	}
 
 	validate(val, msg, arg) {

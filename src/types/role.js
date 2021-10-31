@@ -4,7 +4,9 @@ const { escapeMarkdown } = require('discord.js');
 
 class RoleArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'role');
+		super(client, 'role', {
+			type: 'ROLE'
+		});
 	}
 
 	validate(val, msg, arg) {

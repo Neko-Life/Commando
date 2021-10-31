@@ -2,7 +2,9 @@ const ArgumentType = require('./base');
 
 class IntegerArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'integer');
+		super(client, 'integer', {
+			type: 'INTEGER'
+		});
 	}
 
 	validate(val, msg, arg) {

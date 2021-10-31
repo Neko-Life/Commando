@@ -4,7 +4,9 @@ const { escapeMarkdown } = require('discord.js');
 
 class UserArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'user');
+		super(client, 'user', {
+			type: 'USER'
+		});
 	}
 
 	async validate(val, msg, arg) {

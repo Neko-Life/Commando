@@ -4,7 +4,10 @@ const { escapeMarkdown } = require('discord.js');
 
 class TextChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'text-channel');
+		super(client, 'text-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['GUILD_TEXT', 'GUILD_NEWS']
+		});
 	}
 
 	validate(val, msg, arg) {

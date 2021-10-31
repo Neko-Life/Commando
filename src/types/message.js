@@ -2,7 +2,9 @@ const ArgumentType = require('./base');
 
 class MessageArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'message');
+		super(client, 'message', {
+			type: 'STRING'
+		});
 	}
 
 	async validate(val, msg) {

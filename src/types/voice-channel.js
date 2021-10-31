@@ -4,7 +4,10 @@ const { escapeMarkdown } = require('discord.js');
 
 class VoiceChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'voice-channel');
+		super(client, 'voice-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['GUILD_VOICE', 'GUILD_STAGE_VOICE']
+		});
 	}
 
 	validate(val, msg, arg) {

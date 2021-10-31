@@ -50,6 +50,10 @@ class Command {
 	 * @property {boolean} [hidden=false] - Whether the command should be hidden from the help command
 	 * @property {boolean} [unknown=false] - Whether the command should be run when an unknown command is used - there
 	 * may only be one command registered with this property as `true`.
+	 * @property {boolean|"slash"|"message"|"user"} [command=false] - Whether the command is a discord command (slash
+	 * command, message right click or user right click command)
+	 * @property {boolean} [commandOnly=false] - Whether the command can be triggered only by the discord version or
+	 * patterns or if default message handling should apply.
 	 */
 
 	/**
@@ -109,6 +113,17 @@ class Command {
 		 * @type {string}
 		 */
 		this.description = info.description;
+
+		/**
+		 * Whether the command is also a discord command. True for slash command.
+		 * @type {boolean|"slash"|"message"|"user"}
+		 */
+		this.command = info.command;
+		/**
+		 * Whether the command is only a discord command (cannot be triggered by normal message, except with patterns)
+		 * @type {boolean}
+		 */
+		this.commandOnly = info.commandOnly;
 
 		/**
 		 * Usage format string of the command
@@ -533,6 +548,12 @@ class Command {
 		if('details' in info && typeof info.details !== 'string') throw new TypeError('Command details must be a string.');
 		if(info.examples && (!Array.isArray(info.examples) || info.examples.some(ex => typeof ex !== 'string'))) {
 			throw new TypeError('Command examples must be an Array of strings.');
+		}
+		if('command' in info && typeof info.command !== 'boolean' && !['slash', 'user', 'message'].includes(info.command)) {
+			throw new TypeError('command option must be a boolean or one of "slash", "user" or "message".');
+		}
+		if('commandOnly' in info && typeof info.commandOnly !== 'boolean') {
+			throw new TypeError('commandOnly option must be a boolean.');
 		}
 		if(info.clientPermissions) {
 			if(!Array.isArray(info.clientPermissions)) {

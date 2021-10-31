@@ -1,4 +1,4 @@
-const { splitMessage, MessageEmbed, Message } = require('discord.js');
+const { splitMessage, MessageEmbed, Message, Interaction } = require('discord.js');
 const { oneLine } = require('common-tags');
 const Command = require('../commands/base');
 const FriendlyError = require('../errors/friendly');
@@ -13,13 +13,18 @@ const extenders = new Set();
  * An extension of the base Discord.js Message class to add command-related functionality.
  */
 module.exports = class Context {
+	/**
+	 * Creates new context
+	 * @param {Message|Interaction} message -
+	 */
 	constructor(message) {
 		/**
 		 * The message of this context
 		 * @type {Message}
 		 */
-		this.message = message;
-		this.author = message.author;
+		this.message = message instanceof Message ? message : null;
+		this.interaction = message instanceof Interaction ? message : null;
+		this.author = message instanceof Message ? message.author : message.user;
 		this.guild = message.guild;
 		this.channel = message.channel;
 		this.client = message.client;
@@ -30,6 +35,29 @@ module.exports = class Context {
 		 * @type {?string}
 		 */
 		this.alias = null;
+
+		this.targetUser = null;
+		this.targetMessage = null;
+		if(message instanceof Interaction && message.isContextMenu()) {
+			if(message.targetType === 'USER') {
+				/**
+				 * Target user of the context menu.
+				 * @type {?User}
+				 */
+				this.targetUser = message.options.resolved.users.get(message.targetId);
+				/**
+				 * Target member of the context menu.
+				 * @type {?GuildMember}
+				 */
+				this.targetMember = message.options.resolved.members.get(message.targetId);
+			} else {
+				/**
+				 * Target message id of the context menu.
+				 * @type {?APIMessage | Message<boolean>}
+				 */
+				this.targetMessage = message.options.resolved.messages.get(message.targetId);
+			}
+		}
 
 		/**
 		 * Whether the message contains a command (even an unknown one)
@@ -76,9 +104,15 @@ module.exports = class Context {
 	 */
 	get content() { return this.message.content; }
 
+	defer(opts) {
+		if(this.interaction && this.interaction.isCommand()) {
+			this.interaction.deferReply(opts);
+		}
+	}
+
 	/**
 	 * Extends the message to be the 'context'
-	 * @param {Message} message - the message to extend
+	 * @param {Message|Interaction} message - the message to extend
 	 * @return {Context}
 	 */
 	static extend(message) {
@@ -369,7 +403,11 @@ module.exports = class Context {
 				if(!shouldEdit) return this.channel.send(options);
 				return this.editCurrentResponse(channelIDOrDM(this.channel), { type, content, options });
 			case 'reply':
-				if(!shouldEdit) return this.message.reply(options);
+				if(!shouldEdit) {
+					if(this.message) return this.message.reply(options);
+					options.fetchReply = true;
+					return this.interaction.reply(options);
+				}
 				if(options && options.split && !options.split.prepend) options.split.prepend = `${this.author}, `;
 				return this.editCurrentResponse(channelIDOrDM(this.channel), { type, content, options });
 			case 'direct':

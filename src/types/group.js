@@ -4,7 +4,15 @@ const { escapeMarkdown } = require('discord.js');
 
 class GroupArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'group');
+		super(client, 'group', {
+			type: 'STRING',
+			autocomplete: true
+		});
+	}
+
+	autocomplete(int) {
+		const groups = this.client.registry.findGroups(int.options.getFocused(false));
+		return groups.slice(0, 15).map(group => ({ name: group.name, value: group.name }));
 	}
 
 	validate(val) {
