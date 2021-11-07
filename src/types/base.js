@@ -1,16 +1,16 @@
 /**
  * @typedef {Object} SlashOptionsChoice
- * @property {string} name
- * @property {string} value
+ * @property {string} name - the name (shown to the user)
+ * @property {string} value - the value (what's received in the interaction)
  */
 /**
  * @typedef {Object} SlashOptions
  * @property {ApplicationCommandOptionType} type - The option type
- * @property {string} [name]
- * @property {string} [description]
- * @property {boolean} [required=false]
- * @property {boolean} [autocomplete=false]
- * @property {Array<SlashOptionsChoice>} [choices]
+ * @property {string} [name] - the name of the slash option, defaults to key of argument
+ * @property {string} [description] - The description of the slash option, defaults to prompt of argument
+ * @property {boolean} [required=false] - whether the argument is required
+ * @property {boolean} [autocomplete=false] - whether autocomplete is enabled
+ * @property {Array<SlashOptionsChoice>} [choices] - the choices available to the user (if limited)
  * @property {Array<SlashOptions>} [options] - Additional options when this is a subcommand (group)
  * @property {ChannelType} [channelTypes] - Allowed channel types when this is channel type
  */

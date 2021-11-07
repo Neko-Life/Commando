@@ -12,7 +12,7 @@ const extenders = new Set();
 /**
  * An extension of the base Discord.js Message class to add command-related functionality.
  */
-module.exports = class Context {
+class Context {
 	/**
 	 * Creates new context
 	 * @param {Message|Interaction} message -
@@ -639,7 +639,9 @@ module.exports = class Context {
 		}
 		return result;
 	}
-};
+}
+
+module.exports = Context;
 
 function channelIDOrDM(channel) {
 	if(channel.type !== 'dm') return channel.id;

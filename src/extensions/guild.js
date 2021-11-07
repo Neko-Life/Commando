@@ -7,9 +7,8 @@ const extenders = new Set();
 
 /**
  * A fancier Guild for fancier people.
- * @extends Guild
  */
-module.exports = class CommandoGuild {
+class CommandoGuild {
 	constructor(guild) {
 		this.guild = guild;
 		this.client = this.guild.client;
@@ -165,4 +164,5 @@ module.exports = class CommandoGuild {
 	commandUsage(command, user = this.client.user) {
 		return Command.usage(command, this.commandPrefix, user);
 	}
-};
+}
+module.exports = CommandoGuild;
