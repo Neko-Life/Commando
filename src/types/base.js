@@ -1,7 +1,7 @@
 /**
  * @typedef SlashOptionsChoice
  * @property {string} name
- * @property {string|number} value
+ * @property {string} value
  */
 /**
  * @typedef SlashOptions
