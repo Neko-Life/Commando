@@ -101,7 +101,7 @@ class CommandoClient extends discord.Client {
 			this.dispatcher.handleMessage(newMessage, oldMessage).catch(msgErr);
 		});
 		// eslint-disable-next-line
-		this.on('interactionCreate', async (/** @type {import("discord.js").CommandInteraction | import("discord.js").AutocompleteInteraction} */ int) => {
+		this.on('interactionCreate', async (/** @type {CommandInteraction | AutocompleteInteraction} */ int) => {
 			const command = this.registry.resolveCommand(int.commandName);
 			if(!command) {
 				throw new TypeError(
