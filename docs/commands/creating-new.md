@@ -21,7 +21,7 @@ module.exports = class CustomCommand extends Command {
         });
     }
 
-    run(msg, args) {
+    run(ctx, args) {
         // code to run
     }
 }
@@ -56,8 +56,8 @@ module.exports = class CustomCommand extends Command {
         });
     }
 
-    run(msg, args) {
-        return msg.channel.send(args, { disableMentions: "all" });
+    run(ctx, args) {
+        return ctx.reply({ content: args, disableMentions: { parse: [] } });
     }
 }
 ```
@@ -98,8 +98,8 @@ Arguments have 2 formats:
 {
     key: "argument",
     prompt: "What's the value of argument?",
-    parse(val, msg): { return val },
-    validate(val, msg): { return !!val }
+    parse(val, ctx): { return val },
+    validate(val, ctx): { return !!val }
 }
 ```
 
@@ -125,8 +125,8 @@ module.exports = class CustomCommand extends Command {
         });
     }
 
-    run(msg, args) {
-        return msg.channel.send(args.user.tag, { disableMentions: "all" });
+    run(ctx, args) {
+        return ctx.reply({ content: args.user.tag, allowedMentions: { parse: [] } });
     }
 }
 ```
