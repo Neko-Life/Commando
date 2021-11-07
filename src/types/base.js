@@ -1,17 +1,17 @@
 /**
- * @typedef SlashOptionsChoice
+ * @typedef {Object} SlashOptionsChoice
  * @property {string} name
  * @property {string} value
  */
 /**
- * @typedef SlashOptions
+ * @typedef {Object} SlashOptions
  * @property {ApplicationCommandOptionType} type - The option type
  * @property {string} [name]
  * @property {string} [description]
  * @property {boolean} [required=false]
  * @property {boolean} [autocomplete=false]
- * @property {SlashOptionsChoice[]} [choices]
- * @property {SlashOptions[]} [options] - Additional options when this is a subcommand (group)
+ * @property {Array<SlashOptionsChoice>} [choices]
+ * @property {Array<SlashOptions>} [options] - Additional options when this is a subcommand (group)
  * @property {ChannelType} [channelTypes] - Allowed channel types when this is channel type
  */
 
