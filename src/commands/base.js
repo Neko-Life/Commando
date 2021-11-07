@@ -364,7 +364,7 @@ class Command {
 	 * (if applicable - see {@link Command#run})
 	 * @returns {Promise<?Message|?Array<Message>>}
 	 */
-	onError(err, message, args, fromPattern, result) { // eslint-disable-line no-unused-vars
+	onError(err, message, args, fromPattern, result) { // eslint-disable-line
 		const owners = this.client.owners;
 		const ownerList = owners ? owners.map((usr, i) => {
 			const or = i === owners.length - 1 && owners.length > 1 ? 'or ' : '';
@@ -372,22 +372,26 @@ class Command {
 		}).join(owners.length > 2 ? ', ' : ' ') : '';
 
 		const invite = this.client.options.invite;
+		/* Console warning
 		console.warn('[ERROR!]', err);
-		if(typeof this.error === 'function') {
-			return this.error(err, message, args, ownerList, invite);
-		} else {
-			return message.reply(stripIndents`
-				Unkown error happened. Incident code: \`${err.name}-${(new Date).valueOf()}\`
+		*/
+		if(!this.client.options.noErrorReply) {
+			if(typeof this.error === 'function') {
+				return this.error(err, message, args, ownerList, invite);
+			} else {
+				return message.reply(stripIndents`
+				Unknown error happened. Incident code: \`${err.name}-${(new Date).valueOf()}\`
 				You shouldn't ever receive an error like this.
 				Please contact ${ownerList || 'the bot owner'}${invite ? ` in this server: ${invite}` : '.'}
-			`);
+				`);
+			}
 		}
 	}
 
 	/**
 	 * Creates/obtains the throttle object for a user, if necessary (owners are excluded)
 	 * @param {string} userID - ID of the user to throttle for
-	 * @return {?Object}
+	 * @return {?ThrottleResult}
 	 * @private
 	 */
 	throttle(userID) {
@@ -507,17 +511,17 @@ class Command {
 	 */
 	static usage(command, prefix = null, user = null) {
 		const nbcmd = command.replace(/ /g, '\xa0');
-		if(!prefix && !user) return `\`\`${nbcmd}\`\``;
+		if(!prefix && !user) return `\`${nbcmd}\``;
 
 		let prefixPart;
 		if(prefix) {
 			if(prefix.length > 1 && !prefix.endsWith(' ')) prefix += ' ';
 			prefix = prefix.replace(/ /g, '\xa0');
-			prefixPart = `\`\`${prefix}${nbcmd}\`\``;
+			prefixPart = `\`${prefix}${nbcmd}\``;
 		}
 
 		let mentionPart;
-		if(user) mentionPart = `\`\`@${user.username.replace(/ /g, '\xa0')}#${user.discriminator}\xa0${nbcmd}\`\``;
+		if(user) mentionPart = `\`@${user.username.replace(/ /g, '\xa0')}#${user.discriminator}\xa0${nbcmd}\``;
 
 		return `${prefixPart || ''}${prefix && user ? ' or ' : ''}${mentionPart || ''}`;
 	}

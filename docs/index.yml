@@ -6,6 +6,8 @@
       path: first-steps.md
 - name: Commands
   files:
+    - name: Creating new commands
+      path: creating-new.md
     - name: Built-in commands
       path: builtins.md
     - name: Slash commands

@@ -47,9 +47,6 @@ module.exports = class PrefixCommand extends Command {
 		} else if(!this.client.isOwner(ctx.author)) {
 			return ctx.reply('Only the bot owner(s) may change the global command prefix.');
 		}
-
-		// Save the prefix
-		const lowercase = args.prefix.toLowerCase();
 		const prefix = lowercase === 'none' ? '' : args.prefix;
 		let response;
 		if(lowercase === 'default') {

@@ -1,4 +1,5 @@
 const Context = require('./extensions/context');
+const { Message } = require('discord.js');
 const { escapeRegex } = require('./util');
 
 /** Handles parsing messages and running commands from them */
@@ -53,7 +54,7 @@ class CommandDispatcher {
 	/**
 	 * @typedef {Object} Inhibition
 	 * @property {string} reason - Identifier for the reason the command is being blocked
-	 * @property {?Promise<Message>} response - Response being sent to the user
+	 * @property {?Promise<Message>|Message} response - Response being sent to the user
 	 */
 
 	/**
@@ -202,7 +203,8 @@ class CommandDispatcher {
 				const valid = typeof inhibit.reason === 'string' && (
 					typeof inhibit.response === 'undefined' ||
 					inhibit.response === null ||
-					inhibit.response instanceof Promise
+					inhibit.response instanceof Promise ||
+					inhibit.response instanceof Message
 				);
 				if(!valid) {
 					throw new TypeError(
