@@ -1,11 +1,16 @@
 /**
+ * @typedef SlashOptionsChoice
+ * @property {string} name
+ * @property {string|number} value
+ */
+/**
  * @typedef SlashOptions
  * @property {ApplicationCommandOptionType} type - The option type
  * @property {string} [name]
  * @property {string} [description]
  * @property {boolean} [required=false]
  * @property {boolean} [autocomplete=false]
- * @property {{ name: string, value: string | number }[]} [choices]
+ * @property {SlashOptionsChoice[]} [choices]
  * @property {SlashOptions[]} [options] - Additional options when this is a subcommand (group)
  * @property {ChannelType} [channelTypes] - Allowed channel types when this is channel type
  */
