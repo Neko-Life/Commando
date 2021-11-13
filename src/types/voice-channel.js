@@ -15,7 +15,7 @@ class VoiceChannelArgumentType extends ArgumentType {
 		if(matches) {
 			try {
 				const channel = msg.client.channels.cache.resolve(matches[1]);
-				if(!channel || channel.type !== 'voice') return false;
+				if(!channel || ['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(channel.type)) return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {

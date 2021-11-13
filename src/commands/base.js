@@ -277,7 +277,7 @@ class Command {
 			return `The \`${this.name}\` command can only be used by the bot owner.`;
 		}
 
-		if(message.channel.type === 'text' && this.userPermissions) {
+		if(message.channel.type === 'GUILD_TEXT' && this.userPermissions) {
 			const missing = message.channel.permissionsFor(message.author).missing(this.userPermissions);
 			if(missing.length > 0) {
 				if(missing.length === 1) {

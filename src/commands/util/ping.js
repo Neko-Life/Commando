@@ -19,7 +19,7 @@ module.exports = class PingCommand extends Command {
 	async run(ctx) {
 		const pingMsg = await ctx.reply('Pinging...');
 		return pingMsg.edit({ content: oneLine`
-			${ctx.channel.type !== 'dm' ? `${ctx.author},` : ''}
+			${ctx.channel.type !== 'DM' ? `${ctx.author},` : ''}
 			Pong! The message round-trip took ${
 				ctx.message ?
 				(pingMsg.editedTimestamp || pingMsg.createdTimestamp) -

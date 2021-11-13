@@ -211,12 +211,12 @@ class Context {
 	 */
 	async run() { // eslint-disable-line complexity
 		// Obtain the member if we don't have it
-		if(this.channel.type === 'text' && !this.guild.members.cache.has(this.author.id) && !this.webhookID) {
+		if(this.channel.guild && !this.guild.members.cache.has(this.author.id) && !this.webhookID) {
 			this.member = await this.guild.members.fetch(this.author);
 		}
 
 		// Obtain the member for the ClientUser if it doesn't already exist
-		if(this.channel.type === 'text' && !this.guild.members.cache.has(this.client.user.id)) {
+		if(this.channel.guild && !this.guild.members.cache.has(this.client.user.id)) {
 			await this.guild.members.fetch(this.client.user.id);
 		}
 
@@ -379,7 +379,7 @@ class Context {
 			if(options && options.split && typeof options.split !== 'object') options.split = {};
 		}
 
-		if(type === 'reply' && this.channel.type === 'dm') type = 'plain';
+		if(type === 'reply' && this.channel.type === 'DM') type = 'plain';
 		if(type !== 'direct') {
 			if(this.guild && !this.channel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
 				type = 'direct';
@@ -644,6 +644,6 @@ class Context {
 module.exports = Context;
 
 function channelIDOrDM(channel) {
-	if(channel.type !== 'dm') return channel.id;
+	if(channel.type !== 'DM') return channel.id;
 	return 'dm';
 }

@@ -15,7 +15,7 @@ class TextChannelArgumentType extends ArgumentType {
 		if(matches) {
 			try {
 				const channel = msg.client.channels.resolve(matches[1]);
-				if(!channel || channel.type !== 'text') return false;
+				if(!channel || ['GUILD_TEXT', 'GUILD_NEWS'].includes(channel.type)) return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {

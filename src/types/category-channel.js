@@ -15,7 +15,7 @@ class CategoryChannelArgumentType extends ArgumentType {
 		if(matches) {
 			try {
 				const channel = msg.client.channels.resolve(matches[1]);
-				if(!channel || channel.type !== 'category') return false;
+				if(!channel || channel.type !== 'GUILD_CATEGORY') return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {
