@@ -427,7 +427,7 @@ class Command {
 			return;
 		}
 		guild = this.client.guilds.resolve(guild);
-		guild.setCommandEnabled(this, enabled);
+		CommandoGuild.extend(guild).setCommandEnabled(this, enabled);
 	}
 
 	/**
