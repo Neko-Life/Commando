@@ -408,7 +408,6 @@ class Context {
 					options.fetchReply = true;
 					return this.interaction.reply(options);
 				}
-				if(options && options.split && !options.split.prepend) options.split.prepend = `${this.author}, `;
 				return this.editCurrentResponse(channelIDOrDM(this.channel), { type, content, options });
 			case 'direct':
 				if(!shouldEdit) return this.author.send(options);
@@ -437,9 +436,6 @@ class Context {
 		if(!response) return this.respond({ type, content, options, fromEdit: true });
 		if(options && options.split) content = splitMessage(content, options.split);
 
-		let prepend = '';
-		if(type === 'reply') prepend = `${this.author}, `;
-
 		if(!options) options = {};
 		if(!('failIfNotExists' in options)) options.failIfNotExists = false;
 		if(!options.allowedMentions) options.allowedMentions = {};
@@ -450,24 +446,24 @@ class Context {
 			if(response instanceof Array) {
 				for(let i = 0; i < content.length; i++) {
 					if(response.length > i) {
-						promises.push(response[i].edit({ ...options, content: `${prepend}${content[i]}` }));
+						promises.push(response[i].edit({ ...options, content: content[i] }));
 					} else {
-						promises.push(response[0].channel.send({ ...options, content: `${prepend}${content[i]}` }));
+						promises.push(response[0].channel.send({ ...options, content: content[i] }));
 					}
 				}
 			} else {
-				promises.push(response.edit({ ...options, content: `${prepend}${content[0]}` }));
+				promises.push(response.edit({ ...options, content: content[0] }));
 				for(let i = 1; i < content.length; i++) {
-					promises.push(response.channel.send(`${prepend}${content[i]}`));
+					promises.push(response.channel.send(content[i]));
 				}
 			}
 			return Promise.all(promises);
 		} else {
 			if(response instanceof Array) { // eslint-disable-line no-lonely-if
 				for(let i = response.length - 1; i > 0; i--) response[i].delete();
-				return response[0].edit({ ...options, content: `${prepend}${content}` });
+				return response[0].edit({ ...options, content: content });
 			} else {
-				return response.edit({ ...options, content: `${prepend}${content}` });
+				return response.edit({ ...options, content: content });
 			}
 		}
 	}
