@@ -58,11 +58,11 @@ class VoiceChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'voice' && chan.name.toLowerCase() === search;
+	return chan => ['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(chan.type) && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'voice' && chan.name.toLowerCase().includes(search);
+	return chan => ['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(chan.type) && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = VoiceChannelArgumentType;

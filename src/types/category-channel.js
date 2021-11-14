@@ -58,11 +58,11 @@ class CategoryChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'category' && chan.name.toLowerCase() === search;
+	return chan => chan.type === 'GUILD_CATEGORY' && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'category' && chan.name.toLowerCase().includes(search);
+	return chan => chan.type === 'GUILD_CATEGORY' && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = CategoryChannelArgumentType;

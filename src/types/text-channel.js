@@ -58,11 +58,11 @@ class TextChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'text' && chan.name.toLowerCase() === search;
+	return chan => ['GUILD_TEXT', 'GUILD_NEWS'].includes(chan.type) && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'text' && chan.name.toLowerCase().includes(search);
+	return chan => ['GUILD_TEXT', 'GUILD_NEWS'].includes(chan.type) && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = TextChannelArgumentType;
