@@ -115,6 +115,8 @@ class CommandoClient extends discord.Client {
 				if(res && Array.isArray(res)) {
 					await int.respond(res);
 				}
+			} else if(int.isButton()) {
+				return;
 			} else {
 				const ctx = Context.extend(int);
 				if(!command.argsCollector) return command.run(ctx);
