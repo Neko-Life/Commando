@@ -102,6 +102,7 @@ class CommandoClient extends discord.Client {
 		});
 		// eslint-disable-next-line
 		this.on('interactionCreate', async (/** @type {CommandInteraction | AutocompleteInteraction} */ int) => {
+			if(int.isButton()) return;
 			const command = this.registry.resolveCommand(int.commandName);
 			if(!command) {
 				throw new TypeError(
@@ -115,8 +116,6 @@ class CommandoClient extends discord.Client {
 				if(res && Array.isArray(res)) {
 					await int.respond(res);
 				}
-			} else if(int.isButton()) {
-				return;
 			} else {
 				const ctx = Context.extend(int);
 				if(!command.argsCollector) return command.run(ctx);
