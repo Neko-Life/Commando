@@ -1,3 +1,4 @@
+const Context = require('./extensions/context');
 const { Message } = require('discord.js');
 const { escapeRegex } = require('./util');
 
@@ -251,12 +252,13 @@ class CommandDispatcher {
 			if(!command.patterns) continue;
 			for(const pattern of command.patterns) {
 				const matches = pattern.exec(message.content);
-				if(matches) return message.initCommand(command, null, matches, '-pattern-');
+				if(matches) return Context.extend(message).initCommand(command, null, matches, '-pattern-');
 			}
 		}
 
 		// Find the command to run with default command handling
-		const prefix = message.guild ? message.guild.commandPrefix : this.client.commandPrefix;
+		message = Context.extend(message);
+		const prefix = message.guild ? message.contextGuild.commandPrefix : this.client.commandPrefix;
 		if(!this._commandPatterns[prefix]) this.buildCommandPattern(prefix);
 		let cmdMsg = this.matchDefault(message, this._commandPatterns[prefix], 2);
 		if(!cmdMsg && !message.guild) cmdMsg = this.matchDefault(message, /^([^\s]+)/i, 1, true);
@@ -277,14 +279,14 @@ class CommandDispatcher {
 		if(!matches) return null;
 		const commands = this.registry.findCommands(matches[commandNameIndex], true);
 		if(commands.length !== 1 || !commands[0].defaultHandling) {
-			return message.initCommand(
+			return Context.extend(message).initCommand(
 				this.registry.unknownCommand,
 				prefixless ? message.content : matches[1],
 				matches[commandNameIndex]
 			);
 		}
 		const argString = message.content.substring(matches[1].length + (matches[2] ? matches[2].length : 0));
-		return message.initCommand(commands[0], argString, null, matches[commandNameIndex]);
+		return Context.extend(message).initCommand(commands[0], argString, null, matches[commandNameIndex]);
 	}
 
 	/**

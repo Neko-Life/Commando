@@ -1,10 +1,12 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class ChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'channel');
+		super(client, 'channel', {
+			type: 'CHANNEL'
+		});
 	}
 
 	validate(val, msg, arg) {

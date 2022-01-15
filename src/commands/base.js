@@ -1,8 +1,8 @@
 const path = require('path');
-const { escapeMarkdown } = require('discord.js');
 const { oneLine, stripIndents } = require('common-tags');
 const ArgumentCollector = require('./collector');
-const { permissions } = require('../util');
+const { permissions, escapeMarkdown } = require('../util');
+const CommandoGuild = require('../extensions/guild');
 
 /** A command that can be run in a client */
 class Command {
@@ -23,7 +23,6 @@ class Command {
 	 * @property {string} [format] - The command usage format string - will be automatically generated if not specified,
 	 * and `args` is specified
 	 * @property {string} [details] - A detailed description of the command and its functionality
-	 * @property {string} [examplesName="examples"] - Title of examples in help command
 	 * @property {string[]} [examples] - Usage examples of the command
 	 * @property {boolean} [guildOnly=false] - Whether or not the command should only function in a guild channel
 	 * @property {boolean} [ownerOnly=false] - Whether or not the command is usable only by an owner
@@ -32,7 +31,7 @@ class Command {
 	 * @property {boolean} [nsfw=false] - Whether the command is usable only in NSFW channels.
 	 * @property {ThrottlingOptions} [throttling] - Options for throttling usages of the command.
 	 * @property {boolean} [defaultHandling=true] - Whether or not the default command handling should be used.
-	 * If false, then only patterns will trigger the command.
+	 * If false, then only patterns and interactions will trigger the command.
 	 * @property {ArgumentInfo[]} [args] - Arguments for the command.
 	 * @property {number} [argsPromptLimit=Infinity] - Maximum number of times to prompt a user for a single argument.
 	 * Only applicable if `args` is specified.
@@ -50,6 +49,8 @@ class Command {
 	 * @property {boolean} [hidden=false] - Whether the command should be hidden from the help command
 	 * @property {boolean} [unknown=false] - Whether the command should be run when an unknown command is used - there
 	 * may only be one command registered with this property as `true`.
+	 * @property {{ type: "user" | "message" | "slash", name?: string, description?: string } | { type: "user" | "message" | "slash", name?: string, description?: string }[]} [interactions] - Whether the command is a discord command (slash
+	 * command, message right click or user right click command)
 	 */
 
 	/**
@@ -111,6 +112,12 @@ class Command {
 		this.description = info.description;
 
 		/**
+		 * Whether the command is also a discord command. True for slash command.
+		 * @type {{ type: "user" | "message" | "slash", name?: string, description?: string }[]}
+		 */
+		this.interactions = info.interactions ? (Array.isArray(info.interactions) ? info.interactions : [info.interactions]) : [];
+
+		/**
 		 * Usage format string of the command
 		 * @type {string}
 		 */
@@ -127,12 +134,6 @@ class Command {
 		 * @type {?string[]}
 		 */
 		this.examples = info.examples || null;
-
-		/**
-		 * Examples name in help
-		 * @type {?string}
-		 */
-		this.examplesName = info.examplesName || 'Examples';
 
 		/**
 		 * Whether the command can only be run in a guild channel
@@ -262,7 +263,7 @@ class Command {
 			return `The \`${this.name}\` command can only be used by the bot owner.`;
 		}
 
-		if(message.channel.type === 'text' && this.userPermissions) {
+		if(message.channel.type === 'GUILD_TEXT' && this.userPermissions) {
 			const missing = message.channel.permissionsFor(message.author).missing(this.userPermissions);
 			if(missing.length > 0) {
 				if(missing.length === 1) {
@@ -280,7 +281,7 @@ class Command {
 
 	/**
 	 * Runs the command
-	 * @param {CommandoMessage} message - The message the command is being run for
+	 * @param {Context} message - The message the command is being run for
 	 * @param {Object|string|string[]} args - The arguments for the command, or the matches from a pattern.
 	 * If args is specified on the command, thise will be the argument values object. If argsType is single, then only
 	 * one string will be passed. If multiple, an array of strings will be passed. When fromPattern is true, this is the
@@ -412,7 +413,7 @@ class Command {
 			return;
 		}
 		guild = this.client.guilds.resolve(guild);
-		guild.setCommandEnabled(this, enabled);
+		CommandoGuild.extend(guild).setCommandEnabled(this, enabled);
 	}
 
 	/**
@@ -424,7 +425,7 @@ class Command {
 	isEnabledIn(guild, bypassGroup) {
 		if(this.guarded) return true;
 		if(!guild) return this.group._globalEnabled && this._globalEnabled;
-		guild = this.client.guilds.resolve(guild);
+		guild = CommandoGuild.extend(this.client.guilds.resolve(guild));
 		return (bypassGroup || guild.isGroupEnabled(this.group)) && guild.isCommandEnabled(this);
 	}
 
@@ -537,6 +538,9 @@ class Command {
 		if('details' in info && typeof info.details !== 'string') throw new TypeError('Command details must be a string.');
 		if(info.examples && (!Array.isArray(info.examples) || info.examples.some(ex => typeof ex !== 'string'))) {
 			throw new TypeError('Command examples must be an Array of strings.');
+		}
+		if('command' in info && typeof info.command !== 'boolean' && !['slash', 'user', 'message'].includes(info.command)) {
+			throw new TypeError('command option must be a boolean or one of "slash", "user" or "message".');
 		}
 		if(info.clientPermissions) {
 			if(!Array.isArray(info.clientPermissions)) {

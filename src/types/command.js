@@ -1,10 +1,22 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class CommandArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'command');
+		super(client, 'command', {
+			type: 'STRING',
+			autocomplete: true
+		});
+	}
+
+	commandConvert(val) {
+		return this.client.registry.findCommands(val)[0];
+	}
+
+	autocomplete(int) {
+		const commands = this.client.registry.findCommands(int.options.getFocused(false));
+		return commands.slice(0, 25).map(cmd => ({ name: cmd.name, value: `${cmd.groupID}:${cmd.memberName}` }));
 	}
 
 	validate(val) {

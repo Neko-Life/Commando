@@ -4,11 +4,39 @@ const path = require('path');
 const oneLine = require('common-tags').oneLine;
 const sqlite = require('sqlite');
 const sqlite3 = require('sqlite3');
-const token = require('./auth').token;
+const { token, guild: slashGuild } = require('./auth');
 
 const client = new commando.Client({
-	owner: '90997305578106880',
-	commandPrefix: 'cdev'
+	owner: '820696421912412191',
+	commandPrefix: 'cdev',
+	intents: [
+		'GUILDS',
+		// Guild create/update/delete, role create/update/delete, channel create/update/delete/pins
+		'GUILD_MEMBERS',
+		// Guild member add/update/remove                                                   PRIVILEGED
+
+		'GUILD_BANS',
+		// Guild ban add/remove
+		//          'GUILD_EMOJIS',             // guild emoji update
+		'GUILD_INTEGRATIONS',
+		// Guild integrations update
+		//          'GUILD_WEBHOOKS',           // guild webhooks update
+		'GUILD_INVITES',
+		// Invites create/delete
+		'GUILD_VOICE_STATES',
+		// Voice state update
+		//          'GUILD_PRESENCES',          // presence update                                           PRIVILEGED
+		'GUILD_MESSAGES',
+		// Message create/update/delete/bulk delete
+		'GUILD_MESSAGE_REACTIONS',
+		// Message reaction add/remove/remove all/remove emoji
+		//          'GUILD_MESSAGE_TYPING',     // typing start
+		'DIRECT_MESSAGES',
+		// Message create/update/delete/pins in DMs
+		'DIRECT_MESSAGE_REACTIONS'
+		// Message reaction add/remove/remove all/remove emoji in DMs
+		//          'DIRECT_MESSAGE_TYPING'     // typing start in DMs
+	]
 });
 
 client
@@ -17,6 +45,8 @@ client
 	.on('debug', console.log)
 	.on('ready', () => {
 		console.log(`Client ready; logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`);
+		console.log(client.application.id);
+		client.registry.registerSlashInGuild(slashGuild);
 	})
 	.on('disconnect', () => { console.warn('Disconnected!'); })
 	.on('reconnecting', () => { console.warn('Reconnecting...'); })

@@ -4,29 +4,19 @@ const commando = require('../../../src');
 module.exports = class UserInfoCommand extends commando.Command {
 	constructor(client) {
 		super(client, {
-			name: 'user-info',
-			aliases: ['user', '🗒'],
+			name: 'view-profile',
 			group: 'util',
-			memberName: 'user-info',
-			description: 'Gets information about a user.',
-			examples: ['user-info @Crawl#3208', 'user-info Crawl'],
+			memberName: 'view-profile',
+			description: '',
 			guildOnly: true,
-			command: true,
-			args: [
-				{
-					key: 'member',
-					label: 'user',
-					prompt: 'What user would you like to snoop on?',
-					type: 'member'
-				}
-			]
+			command: 'user'
 		});
 	}
 
-	async run(msg, args) {
-		const member = args.member;
-		const user = member.user;
-		return msg.reply(stripIndents`
+	async run(ctx) {
+		const member = ctx.targetMember;
+		const user = ctx.targetUser;
+		return ctx.reply(stripIndents`
 			Info on **${user.username}#${user.discriminator}** (ID: ${user.id})
 
 			**❯ Member Details**
@@ -36,8 +26,8 @@ module.exports = class UserInfoCommand extends commando.Command {
 
 			**❯ User Details**
 			 • Created at: ${user.createdAt}${user.bot ? '\n • Is a bot account' : ''}
-			 • Status: ${(user.presence && user.presence.status) || 'Offline'}
-			 • Game: ${user.presence && user.presence.game ? user.presence.game.name : 'None'}
+			 • Status: ${user.presence.status}
+			 • Game: ${user.presence.game ? user.presence.game.name : 'None'}
 		`);
 	}
 };

@@ -10,3 +10,5 @@
       path: creating-new.md
     - name: Built-in commands
       path: builtins.md
+    - name: Slash commands
+      path: slash.md

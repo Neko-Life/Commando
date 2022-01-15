@@ -1,10 +1,13 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class VoiceChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'voice-channel');
+		super(client, 'voice-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['GUILD_VOICE', 'GUILD_STAGE_VOICE']
+		});
 	}
 
 	validate(val, msg, arg) {
@@ -12,7 +15,7 @@ class VoiceChannelArgumentType extends ArgumentType {
 		if(matches) {
 			try {
 				const channel = msg.client.channels.cache.resolve(matches[1]);
-				if(!channel || channel.type !== 'voice') return false;
+				if(!channel || !['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(channel.type)) return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {
@@ -55,11 +58,11 @@ class VoiceChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'voice' && chan.name.toLowerCase() === search;
+	return chan => ['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(chan.type) && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'voice' && chan.name.toLowerCase().includes(search);
+	return chan => ['GUILD_VOICE', 'GUILD_STAGE_VOICE'].includes(chan.type) && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = VoiceChannelArgumentType;

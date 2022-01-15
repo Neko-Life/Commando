@@ -1,18 +1,21 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class TextChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'text-channel');
+		super(client, 'text-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['GUILD_TEXT', 'GUILD_NEWS']
+		});
 	}
 
 	validate(val, msg, arg) {
 		const matches = val.match(/^(?:<#)?([0-9]+)>?$/);
 		if(matches) {
 			try {
-				const channel = msg.guild.channels.resolve(matches[1]);
-				if(!channel || channel.type !== 'text') return false;
+				const channel = msg.client.channels.resolve(matches[1]);
+				if(!channel || !['GUILD_TEXT', 'GUILD_NEWS'].includes(channel.type)) return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {
@@ -55,11 +58,11 @@ class TextChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'text' && chan.name.toLowerCase() === search;
+	return chan => ['GUILD_TEXT', 'GUILD_NEWS'].includes(chan.type) && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'text' && chan.name.toLowerCase().includes(search);
+	return chan => ['GUILD_TEXT', 'GUILD_NEWS'].includes(chan.type) && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = TextChannelArgumentType;

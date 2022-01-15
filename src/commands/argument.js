@@ -1,4 +1,4 @@
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 const { oneLine, stripIndents } = require('common-tags');
 const ArgumentUnionType = require('../types/union');
 
@@ -23,6 +23,8 @@ class Argument {
 	 * @property {Function} [validate] - Validator function for the argument (see {@link ArgumentType#validate})
 	 * @property {Function} [parse] - Parser function for the argument (see {@link ArgumentType#parse})
 	 * @property {Function} [isEmpty] - Empty checker for the argument (see {@link ArgumentType#isEmpty})
+	 * @property {Function} [autocomplete] - If a slash command with enabled autocomplete,
+	 * this function should reply with the options.
 	 * @property {number} [wait=30] - How long to wait for input (in seconds)
 	 */
 
@@ -130,6 +132,13 @@ class Argument {
 		this.emptyChecker = info.isEmpty || null;
 
 		/**
+		 * Function to autocomplete users input
+		 * @type {?Function}
+		 * @see {@link ArgumentType#autocomplete}
+		 */
+		this.autocomplete = info.autocomplete || null;
+
+		/**
 		 * How long to wait for input (in seconds)
 		 * @type {number}
 		 */
@@ -216,9 +225,10 @@ class Argument {
 			}
 
 			// Get the user's response
-			const responses = await msg.channel.awaitMessages(msg2 => msg2.author.id === msg.author.id, {
+			const responses = await msg.channel.awaitMessages({
 				max: 1,
-				time: wait
+				time: wait,
+				filter: msg2 => msg2.author.id === msg.author.id
 			});
 
 			// Make sure they actually answered
@@ -314,9 +324,10 @@ class Argument {
 				}
 
 				// Get the user's response
-				const responses = await msg.channel.awaitMessages(msg2 => msg2.author.id === msg.author.id, {
+				const responses = await msg.channel.awaitMessages({
 					max: 1,
-					time: wait
+					time: wait,
+					filter: msg2 => msg2.author.id === msg.author.id
 				});
 
 				// Make sure they actually answered

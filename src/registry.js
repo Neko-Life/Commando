@@ -2,8 +2,11 @@ const path = require('path');
 const discord = require('discord.js');
 const Command = require('./commands/base');
 const CommandGroup = require('./commands/group');
-const CommandoMessage = require('./extensions/message');
+const Context = require('./extensions/context');
 const ArgumentType = require('./types/base');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const { inspect } = require('util');
 const { isConstructor } = require('./util');
 
 /** Handles registration and searching of commands and groups */
@@ -18,9 +21,13 @@ class CommandoRegistry {
 		 */
 		Object.defineProperty(this, 'client', { value: client });
 
+		this.rest = new REST({ version: '9' }).setToken(client.token);
+		this.rest.on('restDebug', info => this.client.emit('debug', `[REST] ${info}`));
+		this.rest.on('rateLimited', data => console.warn('Rate limited', data));
+
 		/**
 		 * Registered commands, mapped by their name
-		 * @type {Collection<string, Command>}
+		 * @type {discord.Collection<string, Command>}
 		 */
 		this.commands = new discord.Collection();
 
@@ -53,6 +60,63 @@ class CommandoRegistry {
 		 * @type {?Command}
 		 */
 		this.unknownCommand = null;
+	}
+
+	/**
+	 * @private
+	 * @returns {any[]}
+	 */
+	_prepareCommandsForSlash() {
+		var commands = [];
+		for(const command of this.commands.values()) {
+			for(const interaction of command.interactions) {
+				commands.push({
+					name: interaction.name || command.name,
+					description: interaction.description || command.description,
+					defaultPermission: true,
+					type: [undefined, 'slash', 'user', 'message'].indexOf(interaction.type),
+					options: command.argsCollector ?
+						command.argsCollector.args.map(arg => Object.assign({
+							name: arg.key, description: arg.prompt,
+							required: !arg.default
+						}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } : {},
+						arg.slash || {}, (arg.type && arg.type.slash) || {})).map(arg => Object.assign(arg, { type: [
+							undefined, 'SUB_COMMAND', 'SUB_COMMAND_GROUP', 'STRING',
+							'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',
+							'MENTIONABLE', 'NUMBER'
+						].indexOf(arg.type) })) :
+						[]
+				});
+			}
+		}
+		return commands;
+	}
+
+	/**
+	 * Registers all slash commands in given guild. Use for development purposes.
+	 * @param {GuildResolvable} guild - The guild to register commands in
+	 */
+	async registerSlashInGuild(guild) {
+		const guildId = this.client.guilds.resolveId(guild);
+		this.client.emit('debug', 'Registering slash commands');
+		console.log(inspect(this._prepareCommandsForSlash(), false, 20, true));
+		await this.rest.put(
+			Routes.applicationGuildCommands(this.client.user.id, guildId),
+			{ body: this._prepareCommandsForSlash() }
+		);
+		this.client.emit('debug', `Registered slash commands for guild id ${guildId}`);
+	}
+
+	/**
+	 * Registers all slash commands globally
+	 */
+	async registerSlashGlobally() {
+		this.client.emit('debug', 'Registering slash commands');
+		await this.rest.put(
+			Routes.applicationGuildCommands(this.client.user.id),
+			{ body: this._prepareCommandsForSlash() }
+		);
+		this.client.emit('debug', `Registered slash commands (globally)`);
 	}
 
 	/**
@@ -138,6 +202,11 @@ class CommandoRegistry {
 		for(const alias of command.aliases) {
 			if(this.commands.some(cmd => cmd.name === alias || cmd.aliases.includes(alias))) {
 				throw new Error(`A command with the name/alias "${alias}" is already registered.`);
+			}
+		}
+		for(const interaction of command.interactions) {
+			if(this.commands.some(cmd => cmd.name === interaction.name || (cmd.interactions && cmd.interactions.some((int) => int.name === interaction.name)))) {
+				throw new Error(`An interaction with the name "${interaction.name}" is already registered.`);
 			}
 		}
 		const group = this.groups.find(grp => grp.id === command.groupID);
@@ -523,8 +592,8 @@ class CommandoRegistry {
 	 * A CommandResolvable can be:
 	 * * A Command
 	 * * A command name
-	 * * A CommandoMessage
-	 * @typedef {Command|string} CommandResolvable
+	 * * A Context
+	 * @typedef {Command|string|Context} CommandResolvable
 	 */
 
 	/**
@@ -534,9 +603,24 @@ class CommandoRegistry {
 	 */
 	resolveCommand(command) {
 		if(command instanceof Command) return command;
-		if(command instanceof CommandoMessage && command.command) return command.command;
+		if(command instanceof Context && command.command) return command.command;
 		if(typeof command === 'string') {
 			const commands = this.findCommands(command, true);
+			if(commands.length === 1) return commands[0];
+		}
+		throw new Error('Unable to resolve command.');
+	}
+
+	/**
+	 * Resolves command from interaction
+	 * @param {Interaction | Command | string} interaction - the interaction to resolve
+	 * @returns {Command} the resolved command
+	 */
+	resolveFromInteraction(interaction) {
+		if(interaction instanceof Command) return command;
+		if(interaction instanceof discord.Interaction) interaction = interaction.commandName;
+		if(typeof interaction === 'string') {
+			const commands = this.commands.toJSON().filter((c) => c.name === interaction || c.interactions.find((int) => int.name === interaction));
 			if(commands.length === 1) return commands[0];
 		}
 		throw new Error('Unable to resolve command.');

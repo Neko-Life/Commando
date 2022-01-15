@@ -1,4 +1,5 @@
 const discord = require('discord.js');
+const CommandoGuild = require('../extensions/guild');
 
 /** A group for commands. Whodathunkit? */
 class CommandGroup {
@@ -63,7 +64,7 @@ class CommandGroup {
 			return;
 		}
 		guild = this.client.guilds.resolve(guild);
-		guild.setGroupEnabled(this, enabled);
+		CommandoGuild.extend(guild).setGroupEnabled(this, enabled);
 	}
 
 	/**
@@ -75,7 +76,7 @@ class CommandGroup {
 		if(this.guarded) return true;
 		if(!guild) return this._globalEnabled;
 		guild = this.client.guilds.resolve(guild);
-		return guild.isGroupEnabled(this);
+		return CommandoGuild.extend(guild).isGroupEnabled(this);
 	}
 
 	/**

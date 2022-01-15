@@ -2,6 +2,7 @@ const discord = require('discord.js');
 const CommandoRegistry = require('./registry');
 const CommandDispatcher = require('./dispatcher');
 const GuildSettingsHelper = require('./providers/helper');
+const Context = require('./extensions/context');
 
 /**
  * Discord.js Client with a command framework
@@ -95,9 +96,64 @@ class CommandoClient extends discord.Client {
 
 		// Set up command handling
 		const msgErr = err => { this.emit('error', err); };
-		this.on('message', message => { this.dispatcher.handleMessage(message).catch(msgErr); });
+		this.on('messageCreate', message => { this.dispatcher.handleMessage(message).catch(msgErr); });
 		this.on('messageUpdate', (oldMessage, newMessage) => {
 			this.dispatcher.handleMessage(newMessage, oldMessage).catch(msgErr);
+		});
+		// eslint-disable-next-line
+		this.on('interactionCreate', async (/** @type {CommandInteraction | AutocompleteInteraction} */ int) => {
+			if(int.isButton()) return;
+			const command = this.registry.resolveFromInteraction(int.commandName);
+			if(!command) {
+				throw new TypeError(
+					`Command ${int.commandName} from interaction not found. Make sure that only Commando is registering commands.`
+				);
+			}
+			if(int.isAutocomplete()) {
+				const ind = int.options.data.findIndex(data => data.focused);
+				const arg = command.argsCollector.args[ind];
+				const res = arg.autocomplete ? await arg.autocomplete(int) : await arg.type.autocomplete(int);
+				if(res && Array.isArray(res)) {
+					await int.respond(res);
+				}
+			} else {
+				const ctx = Context.extend(int);
+				if(!command.argsCollector) return command.run(ctx);
+				var opts = {};
+				for(var i = 0; i < command.argsCollector.args.length; i++) {
+					const src = int.options.data[i];
+					var value;
+					switch(src.type) {
+						case 'STRING':
+						case 'INTEGER':
+						case 'BOOLEAN':
+						case 'NUMBER':
+							value = src.value;
+							break;
+						case 'SUB_COMMAND':
+						case 'SUB_COMMAND_GROUP':
+							value = src;
+							break;
+						case 'USER':
+							value = this.users.resolve(src.user || src.member);
+							break;
+						case 'CHANNEL':
+							value = this.channels.resolve(src.channel);
+							break;
+						case 'ROLE':
+							value = src.role;
+							break;
+						case 'MENTIONABLE':
+							value = src.user || src.member || src.role;
+							break;
+					}
+					opts[command.argsCollector.args[i].key] = command.argsCollector.args[i].commandConvert ?
+						command.argsCollector.args[i].commandConvert(value, src) :
+						command.argsCollector.args[i].type.commandConvert ?
+						command.argsCollector.args[i].type.commandConvert(value, src) : value;
+				}
+				command.run(ctx, opts, false, null);
+			}
 		});
 
 		// Fetch the owner(s)
@@ -118,6 +174,12 @@ class CommandoClient extends discord.Client {
 				}
 			});
 		}
+	}
+
+	async login(token) {
+		var res = await super.login(token);
+		this.registry.rest.setToken(token);
+		return res;
 	}
 
 	/**

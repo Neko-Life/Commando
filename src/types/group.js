@@ -1,10 +1,18 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class GroupArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'group');
+		super(client, 'group', {
+			type: 'STRING',
+			autocomplete: true
+		});
+	}
+
+	autocomplete(int) {
+		const groups = this.client.registry.findGroups(int.options.getFocused(false));
+		return groups.slice(0, 15).map(group => ({ name: group.name, value: group.name }));
 	}
 
 	validate(val) {

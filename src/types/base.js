@@ -1,10 +1,28 @@
+/**
+ * @typedef {Object} SlashOptionsChoice
+ * @property {string} name - the name (shown to the user)
+ * @property {string} value - the value (what's received in the interaction)
+ */
+/**
+ * @typedef {Object} SlashOptions
+ * @property {ApplicationCommandOptionType} type - The option type
+ * @property {string} [name] - the name of the slash option, defaults to key of argument
+ * @property {string} [description] - The description of the slash option, defaults to prompt of argument
+ * @property {boolean} [required=false] - whether the argument is required
+ * @property {boolean} [autocomplete=false] - whether autocomplete is enabled
+ * @property {Array<SlashOptionsChoice>} [choices] - the choices available to the user (if limited)
+ * @property {Array<SlashOptions>} [options] - Additional options when this is a subcommand (group)
+ * @property {ChannelType} [channelTypes] - Allowed channel types when this is channel type
+ */
+
 /** A type for command arguments */
 class ArgumentType {
 	/**
 	 * @param {CommandoClient} client - The client the argument type is for
 	 * @param {string} id - The argument type ID (this is what you specify in {@link ArgumentInfo#type})
+	 * @param {SlashOptions} slash - Options for slash commands usage. Omit when not using slash commands.
 	 */
-	constructor(client, id) {
+	constructor(client, id, slash = null) {
 		if(!client) throw new Error('A client must be specified.');
 		if(typeof id !== 'string') throw new Error('Argument type ID must be a string.');
 		if(id !== id.toLowerCase()) throw new Error('Argument type ID must be lowercase.');
@@ -22,6 +40,29 @@ class ArgumentType {
 		 * @type {string}
 		 */
 		this.id = id;
+
+		/**
+		 * Slash commands options.
+		 * @type {SlashOptions}
+		 */
+		this.slash = slash;
+	}
+
+	/**
+	 * Runs when there's a request for autocomplete (if it has been enabled in slash options).
+	 * @param {AutocompleteInteraction} interaction - The autocomplete interaction from discord.js
+	 */
+	autocomplete(interaction) { // eslint-disable-line no-unused-vars
+		throw new Error(`${this.constructor.name} doesn't have autocomplete method`);
+	}
+
+	/**
+	 * Runs in slash commands, to convert the value from discord API to the desired value.
+	 * @param {any} val -
+	 * @returns {any}
+	 */
+	commandConvert(val) {
+		return val;
 	}
 
 	// eslint-disable-next-line valid-jsdoc

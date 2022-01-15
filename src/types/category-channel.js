@@ -1,10 +1,13 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class CategoryChannelArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'category-channel');
+		super(client, 'category-channel', {
+			type: 'CHANNEL',
+			channelTypes: ['CATEGORY']
+		});
 	}
 
 	validate(val, msg, arg) {
@@ -12,7 +15,7 @@ class CategoryChannelArgumentType extends ArgumentType {
 		if(matches) {
 			try {
 				const channel = msg.client.channels.resolve(matches[1]);
-				if(!channel || channel.type !== 'category') return false;
+				if(!channel || channel.type !== 'GUILD_CATEGORY') return false;
 				if(arg.oneOf && !arg.oneOf.includes(channel.id)) return false;
 				return true;
 			} catch(err) {
@@ -55,11 +58,11 @@ class CategoryChannelArgumentType extends ArgumentType {
 }
 
 function channelFilterExact(search) {
-	return chan => chan.type === 'category' && chan.name.toLowerCase() === search;
+	return chan => chan.type === 'GUILD_CATEGORY' && chan.name.toLowerCase() === search;
 }
 
 function channelFilterInexact(search) {
-	return chan => chan.type === 'category' && chan.name.toLowerCase().includes(search);
+	return chan => chan.type === 'GUILD_CATEGORY' && chan.name.toLowerCase().includes(search);
 }
 
 module.exports = CategoryChannelArgumentType;

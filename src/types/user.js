@@ -1,10 +1,12 @@
 const ArgumentType = require('./base');
 const { disambiguation } = require('../util');
-const { escapeMarkdown } = require('discord.js');
+const { escapeMarkdown } = require('../util');
 
 class UserArgumentType extends ArgumentType {
 	constructor(client) {
-		super(client, 'user');
+		super(client, 'user', {
+			type: 'USER'
+		});
 	}
 
 	async validate(val, msg, arg) {
