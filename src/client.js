@@ -103,10 +103,10 @@ class CommandoClient extends discord.Client {
 		// eslint-disable-next-line
 		this.on('interactionCreate', async (/** @type {CommandInteraction | AutocompleteInteraction} */ int) => {
 			if(int.isButton()) return;
-			const command = this.registry.resolveCommand(int.commandName);
+			const command = this.registry.resolveFromInteraction(int.commandName);
 			if(!command) {
 				throw new TypeError(
-				`Command ${int.commandName} from interaction not found. Make sure that only Commando is registering commands.`
+					`Command ${int.commandName} from interaction not found. Make sure that only Commando is registering commands.`
 				);
 			}
 			if(int.isAutocomplete()) {

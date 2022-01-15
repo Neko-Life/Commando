@@ -32,7 +32,7 @@ class Command {
 	 * @property {boolean} [nsfw=false] - Whether the command is usable only in NSFW channels.
 	 * @property {ThrottlingOptions} [throttling] - Options for throttling usages of the command.
 	 * @property {boolean} [defaultHandling=true] - Whether or not the default command handling should be used.
-	 * If false, then only patterns will trigger the command.
+	 * If false, then only patterns and interactions will trigger the command.
 	 * @property {ArgumentInfo[]} [args] - Arguments for the command.
 	 * @property {number} [argsPromptLimit=Infinity] - Maximum number of times to prompt a user for a single argument.
 	 * Only applicable if `args` is specified.
@@ -50,10 +50,8 @@ class Command {
 	 * @property {boolean} [hidden=false] - Whether the command should be hidden from the help command
 	 * @property {boolean} [unknown=false] - Whether the command should be run when an unknown command is used - there
 	 * may only be one command registered with this property as `true`.
-	 * @property {boolean|"slash"|"message"|"user"} [command=false] - Whether the command is a discord command (slash
+	 * @property {{ type: "user" | "message" | "slash", name?: string, description?: string } | { type: "user" | "message" | "slash", name?: string, description?: string }[]} [interactions] - Whether the command is a discord command (slash
 	 * command, message right click or user right click command)
-	 * @property {boolean} [commandOnly=false] - Whether the command can be triggered only by the discord version or
-	 * patterns or if default message handling should apply.
 	 */
 
 	/**
@@ -116,14 +114,9 @@ class Command {
 
 		/**
 		 * Whether the command is also a discord command. True for slash command.
-		 * @type {boolean|"slash"|"message"|"user"}
+		 * @type {{ type: "user" | "message" | "slash", name?: string, description?: string }[]}
 		 */
-		this.command = info.command;
-		/**
-		 * Whether the command is only a discord command (cannot be triggered by normal message, except with patterns)
-		 * @type {boolean}
-		 */
-		this.commandOnly = info.commandOnly;
+		this.interactions = info.interactions ? (Array.isArray(info.interactions) ? info.interactions : [info.interactions]) : [];
 
 		/**
 		 * Usage format string of the command
@@ -555,9 +548,6 @@ class Command {
 		}
 		if('command' in info && typeof info.command !== 'boolean' && !['slash', 'user', 'message'].includes(info.command)) {
 			throw new TypeError('command option must be a boolean or one of "slash", "user" or "message".');
-		}
-		if('commandOnly' in info && typeof info.commandOnly !== 'boolean') {
-			throw new TypeError('commandOnly option must be a boolean.');
 		}
 		if(info.clientPermissions) {
 			if(!Array.isArray(info.clientPermissions)) {
