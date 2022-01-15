@@ -16,6 +16,7 @@ Additionally, it makes full use of ES2017's `async`/`await` functionality for cl
 
 ### New features in this fork
 
+- Discord.js v13 support (**SLASH COMMANDS**, more embeds, buttons and more)
 - Async inhibitors
 - Async provider loading (loading only guilds that are actually needed)
 - Services
@@ -45,8 +46,8 @@ Additionally, it makes full use of ES2017's `async`/`await` functionality for cl
 
 ## Installation
 
-**Node 12.0.0 or newer is required.**  
-`npm install discord.js@12 @iceprod/discord.js-commando`
+**Node 13.0.0 or newer is required.**  
+`npm install discord.js@13 @iceprod/discord.js-commando`
 
 ## Documentation
 
