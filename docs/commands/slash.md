@@ -33,7 +33,7 @@ The second change that's required for types is `commandConvert`, which takes the
 
 ## Defining commands
 
-Commands should, in a perfect world, require just adding `command: true` (or to be more explicit, `command: "slash"`) to their definitions.
+Commands should, in a perfect world, require just adding `interactions: [{ type: "slash" }]` to their definitions.
 
 In reality, you might be using custom types, and may not be used to working with Context.
 

@@ -64,7 +64,7 @@ module.exports = class CustomCommand extends Command {
 
 Commando also shortcuts replies into `say` method of message which tries to send a normal message in the current channel, and if the bot doesn't have permission will DM the user that started the command.
 
-## Comamnd editing
+## Command editing
 
 To support command editing, simply return the message from `run` method. If a message is not returned, commando will ignore message edits.
 
