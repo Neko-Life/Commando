@@ -72,7 +72,8 @@ const permissions = {
 	PRIORITY_SPEAKER: 'Be priority speaker',
 	STREAM: 'Stream',
 	REQUEST_TO_SPEAK: 'Be able to request to speak',
-	START_EMBEDDED_ACTIVITIES: 'Start embedded activities'
+	START_EMBEDDED_ACTIVITIES: 'Start embedded activities',
+	MODERATE_MEMBERS: 'Timeout members'
 };
 
 
