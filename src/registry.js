@@ -113,7 +113,7 @@ class CommandoRegistry {
 	async registerSlashGlobally() {
 		this.client.emit('debug', 'Registering slash commands');
 		await this.rest.put(
-			Routes.applicationGuildCommands(this.client.user.id),
+			Routes.applicationCommands(this.client.user.id),
 			{ body: this._prepareCommandsForSlash() }
 		);
 		this.client.emit('debug', `Registered slash commands (globally)`);
@@ -204,11 +204,11 @@ class CommandoRegistry {
 				throw new Error(`A command with the name/alias "${alias}" is already registered.`);
 			}
 		}
-		for(const interaction of command.interactions) {
-			if(this.commands.some(cmd => cmd.name === interaction.name || (cmd.interactions && cmd.interactions.some((int) => int.name === interaction.name)))) {
-				throw new Error(`An interaction with the name "${interaction.name}" is already registered.`);
-			}
-		}
+		// for(const interaction of command.interactions) {
+		// 	if(this.commands.some(cmd => cmd.name === interaction.name || (cmd.interactions && cmd.interactions.some((int) => int.name === interaction.name)))) {
+		// 		throw new Error(`An interaction with the name "${interaction.name}" is already registered.`);
+		// 	}
+		// }
 		const group = this.groups.find(grp => grp.id === command.groupID);
 		if(!group) throw new Error(`Group "${command.groupID}" is not registered.`);
 		if(group.commands.some(cmd => cmd.memberName === command.memberName)) {

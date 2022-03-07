@@ -100,6 +100,7 @@ declare module '@iceprod/discord.js-commando' {
 		public throttling: ThrottlingOptions;
 		public unknown: boolean;
 		public userPermissions: PermissionResolvable[];
+		public interactions?: InteractionsInfo | InteractionsInfo[];
 
 		public hasPermission(message: CommandoMessage, ownerOverride?: boolean): boolean | string;
 		public isEnabledIn(guild: GuildResolvable, bypassGroup?: boolean): boolean;
@@ -299,6 +300,10 @@ declare module '@iceprod/discord.js-commando' {
 		public registerServicesIn(path: string): CommandoRegistry;
 		public unregisterService(service: Service): CommandoRegistry;
 		public reregisterService(service: Service, current: Service): CommandoRegistry;
+
+		public _prepareCommandsForSlash(): any[];
+		public registerSlashInGuild(guild: GuildResolvable): Promise<void>;
+		public registerSlashGlobally(): Promise<void>;
 	}
 
 	export class FriendlyError extends Error {
@@ -416,6 +421,11 @@ declare module '@iceprod/discord.js-commando' {
 	}
 
 	type CommandGroupResolvable = CommandGroup | string;
+	interface InteractionsInfo {
+		type: "user" | "message" | "slash",
+		name?: string,
+		description?: string
+	}
 
 	export interface CommandInfo {
 		name: string;
@@ -443,6 +453,7 @@ declare module '@iceprod/discord.js-commando' {
 		guarded?: boolean;
 		hidden?: boolean;
 		unknown?: boolean;
+		interactions?: InteractionsInfo | InteractionsInfo[];
 	}
 
 	export interface CommandoClientOptions extends ClientOptions {
