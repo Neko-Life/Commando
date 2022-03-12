@@ -85,7 +85,8 @@ class CommandoRegistry {
 							'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',
 							'MENTIONABLE', 'NUMBER'
 						].indexOf(arg.type) })) :
-						[]
+						command.run.length === 2 ?
+					[{ name: "args", description: "Arguments", type: 3, required: true }] : []
 				});
 			}
 		}
