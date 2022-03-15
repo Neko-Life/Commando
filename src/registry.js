@@ -70,7 +70,7 @@ class CommandoRegistry {
 		var commands = [];
 		for(const command of this.commands.values()) {
 			for(const interaction of command.interactions) {
-				commands.push({
+				const obj = {
 					name: interaction.name || command.name,
 					description: interaction.description || command.description,
 					defaultPermission: true,
@@ -84,10 +84,16 @@ class CommandoRegistry {
 							undefined, 'SUB_COMMAND', 'SUB_COMMAND_GROUP', 'STRING',
 							'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',
 							'MENTIONABLE', 'NUMBER'
-						].indexOf(arg.type) })) :
+						].indexOf(!arg.type ? "STRING" : arg.type) })) :
 						command.run.length === 2 ?
 					[{ name: "args", description: "Arguments", type: 3, required: true }] : []
-				});
+				};
+				if(obj.type > 1) {
+					delete obj.description;
+					delete obj.options;
+				}
+				if(obj.options?.length) obj.options.sort((a, b) => b.required - a.required);
+				commands.push(obj);
 			}
 		}
 		return commands;

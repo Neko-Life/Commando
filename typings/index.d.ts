@@ -100,7 +100,7 @@ declare module '@iceprod/discord.js-commando' {
 		public throttling: ThrottlingOptions;
 		public unknown: boolean;
 		public userPermissions: PermissionResolvable[];
-		public interactions?: InteractionsInfo | InteractionsInfo[];
+		public interactions?: InteractionsInfo[];
 
 		public hasPermission(message: CommandoMessage, ownerOverride?: boolean): boolean | string;
 		public isEnabledIn(guild: GuildResolvable, bypassGroup?: boolean): boolean;
@@ -453,7 +453,7 @@ declare module '@iceprod/discord.js-commando' {
 		guarded?: boolean;
 		hidden?: boolean;
 		unknown?: boolean;
-		interactions?: InteractionsInfo | InteractionsInfo[];
+		interactions?: InteractionsInfo[];
 	}
 
 	export interface CommandoClientOptions extends ClientOptions {
