@@ -79,7 +79,8 @@ class CommandoRegistry {
 						command.argsCollector.args.map(arg => Object.assign({
 							name: arg.key, description: arg.prompt,
 							required: [null, undefined].includes(arg.default)
-						}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } : {},
+						}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } :
+						arg.autocomplete ? { autocomplete: true } : {},
 						arg.slash || {}, (arg.type && arg.type.slash) || {})).map(arg => Object.assign(arg, { type: [
 							undefined, 'SUB_COMMAND', 'SUB_COMMAND_GROUP', 'STRING',
 							'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',

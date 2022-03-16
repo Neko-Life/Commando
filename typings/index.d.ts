@@ -1,5 +1,5 @@
 declare module '@iceprod/discord.js-commando' {
-	import { Client, ClientEvents, ClientOptions, Collection, Guild, GuildResolvable, Message, MessageAttachment, MessageEditOptions, MessageEmbed, MessageOptions, MessageAdditions, MessageReaction, PermissionResolvable, PermissionString, StringResolvable, User, UserResolvable } from 'discord.js';
+	import { Client, ClientEvents, ClientOptions, Collection, Guild, GuildResolvable, Message, MessageAttachment, MessageEditOptions, MessageEmbed, MessageOptions, MessageAdditions, MessageReaction, PermissionResolvable, PermissionString, StringResolvable, User, UserResolvable, Interaction, AutocompleteInteraction } from 'discord.js';
 
 	export class Argument {
 		private constructor(client: CommandoClient, info: ArgumentInfo);
@@ -396,6 +396,11 @@ declare module '@iceprod/discord.js-commando' {
 		answers: Message[];
 	}
 
+	export interface AutocompleteRespond {
+		name: string;
+		value: string;
+	}
+
 	export interface ArgumentInfo {
 		key: string;
 		label?: string;
@@ -411,6 +416,7 @@ declare module '@iceprod/discord.js-commando' {
 		parse?: Function;
 		isEmpty?: Function;
 		wait?: number;
+		autocomplete?(interaction: Interaction, focus: AutocompleteInteraction["options"]["data"][0]): Promise<AutocompleteRespond[]>;
 	}
 
 	export interface ArgumentResult {
