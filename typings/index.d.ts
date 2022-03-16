@@ -26,6 +26,7 @@ declare module '@iceprod/discord.js-commando' {
 		public obtain(msg: CommandoMessage, val?: string, promptLimit?: number): Promise<ArgumentResult>;
 		public parse(val: string, msg: CommandoMessage): any | Promise<any>;
 		public validate(val: string, msg: CommandoMessage): boolean | string | Promise<boolean | string>;
+		public autocomplete?(interaction: Interaction, focus: AutocompleteInteraction["options"]["data"][0]): Promise<AutocompleteRespond[]>;
 	}
 
 	export abstract class Service {
@@ -101,6 +102,7 @@ declare module '@iceprod/discord.js-commando' {
 		public unknown: boolean;
 		public userPermissions: PermissionResolvable[];
 		public interactions?: InteractionsInfo[];
+		public argsCollector?: ArgumentCollector;
 
 		public hasPermission(message: CommandoMessage, ownerOverride?: boolean): boolean | string;
 		public isEnabledIn(guild: GuildResolvable, bypassGroup?: boolean): boolean;
@@ -304,6 +306,7 @@ declare module '@iceprod/discord.js-commando' {
 		public _prepareCommandsForSlash(): any[];
 		public registerSlashInGuild(guild: GuildResolvable): Promise<void>;
 		public registerSlashGlobally(): Promise<void>;
+		public resolveFromInteraction(interaction: Interaction | Command | string): Command;
 	}
 
 	export class FriendlyError extends Error {
