@@ -1,5 +1,6 @@
 const { escapeMarkdown } = require('../util');
 const { oneLine, stripIndents } = require('common-tags');
+const isPromise = require('is-promise');
 const ArgumentUnionType = require('../types/union');
 
 /** A fancy argument */
@@ -392,7 +393,7 @@ class Argument {
 	validate(val, msg, vmsg) {
 		const valid = this.validator ? this.validator(val, msg, this, vmsg) : this.type.validate(val, msg, this, vmsg);
 		if(!valid || typeof valid === 'string') return this.error || valid;
-		if(valid instanceof Promise) return valid.then(vld => !vld || typeof vld === 'string' ? this.error || vld : vld);
+		if(isPromise(valid)) return valid.then(vld => !vld || typeof vld === 'string' ? this.error || vld : vld);
 		return valid;
 	}
 

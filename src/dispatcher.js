@@ -1,6 +1,7 @@
 const Context = require('./extensions/context');
 const { Message } = require('discord.js');
 const { escapeRegex } = require('./util');
+const isPromise = require('is-promise');
 
 /** Handles parsing messages and running commands from them */
 class CommandDispatcher {
@@ -203,7 +204,7 @@ class CommandDispatcher {
 				const valid = typeof inhibit.reason === 'string' && (
 					typeof inhibit.response === 'undefined' ||
 					inhibit.response === null ||
-					inhibit.response instanceof Promise ||
+					isPromise(inhibit.response) ||
 					inhibit.response instanceof Message
 				);
 				if(!valid) {
