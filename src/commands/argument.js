@@ -216,13 +216,15 @@ class Argument {
 				);
 			} else {
 				// Prompt the user for a new value
-				prompts.push(await msg.reply(stripIndents`
-					${empty ? this.prompt : valid ? valid : `You provided an invalid ${this.label}. Please try again.`}
-					${oneLine`
-						Respond with \`cancel\` to cancel the command.
-						${wait ? `The command will automatically be cancelled in ${this.wait} seconds.` : ''}
-					`}
-				`));
+				const mes = await msg.reply({ content: stripIndents`
+				${empty ? this.prompt : valid ? valid : `You provided an invalid ${this.label}. Please try again.`}
+				${oneLine`
+					Respond with \`cancel\` to cancel the command.
+					${wait ? `The command will automatically be cancelled in ${this.wait} seconds.` : ''}
+				`}
+			`, fetchReply: true});
+				prompts.push(mes);
+				this.message = mes;
 			}
 
 			// Get the user's response
@@ -241,7 +243,8 @@ class Argument {
 					value: null,
 					cancelled: 'time',
 					prompts,
-					answers
+					answers,
+					message: this.message
 				};
 			}
 
@@ -251,7 +254,8 @@ class Argument {
 					value: null,
 					cancelled: 'user',
 					prompts,
-					answers
+					answers,
+					message: this.message
 				};
 			}
 
@@ -264,7 +268,8 @@ class Argument {
 			value: await this.parse(val, msg),
 			cancelled: null,
 			prompts,
-			answers
+			answers,
+			message: this.message
 		};
 	}
 

@@ -1,5 +1,5 @@
 declare module '@iceprod/discord.js-commando' {
-	import { Client, ClientEvents, ClientOptions, Collection, Guild, GuildResolvable, Message, MessageAttachment, MessageEditOptions, MessageEmbed, MessageOptions, MessageAdditions, MessageReaction, PermissionResolvable, PermissionString, StringResolvable, User, UserResolvable } from 'discord.js';
+	import { Client, ClientEvents, ClientOptions, Collection, Guild, GuildResolvable, Message, MessageAttachment, MessageEditOptions, MessageEmbed, MessageOptions, MessageAdditions, MessageReaction, PermissionResolvable, PermissionString, StringResolvable, User, UserResolvable, Interaction, AutocompleteInteraction } from 'discord.js';
 
 	export class Argument {
 		private constructor(client: CommandoClient, info: ArgumentInfo);
@@ -26,6 +26,7 @@ declare module '@iceprod/discord.js-commando' {
 		public obtain(msg: CommandoMessage, val?: string, promptLimit?: number): Promise<ArgumentResult>;
 		public parse(val: string, msg: CommandoMessage): any | Promise<any>;
 		public validate(val: string, msg: CommandoMessage): boolean | string | Promise<boolean | string>;
+		public autocomplete?(interaction: Interaction, focus: AutocompleteInteraction["options"]["data"][0]): Promise<AutocompleteRespond[]>;
 	}
 
 	export abstract class Service {
@@ -100,6 +101,8 @@ declare module '@iceprod/discord.js-commando' {
 		public throttling: ThrottlingOptions;
 		public unknown: boolean;
 		public userPermissions: PermissionResolvable[];
+		public interactions?: InteractionsInfo[];
+		public argsCollector?: ArgumentCollector;
 
 		public hasPermission(message: CommandoMessage, ownerOverride?: boolean): boolean | string;
 		public isEnabledIn(guild: GuildResolvable, bypassGroup?: boolean): boolean;
@@ -299,6 +302,11 @@ declare module '@iceprod/discord.js-commando' {
 		public registerServicesIn(path: string): CommandoRegistry;
 		public unregisterService(service: Service): CommandoRegistry;
 		public reregisterService(service: Service, current: Service): CommandoRegistry;
+
+		public _prepareCommandsForSlash(): any[];
+		public registerSlashInGuild(guild: GuildResolvable): Promise<void>;
+		public registerSlashGlobally(): Promise<void>;
+		public resolveFromInteraction(interaction: Interaction | Command | string): Command;
 	}
 
 	export class FriendlyError extends Error {
@@ -391,6 +399,11 @@ declare module '@iceprod/discord.js-commando' {
 		answers: Message[];
 	}
 
+	export interface AutocompleteRespond {
+		name: string;
+		value: string;
+	}
+
 	export interface ArgumentInfo {
 		key: string;
 		label?: string;
@@ -406,6 +419,7 @@ declare module '@iceprod/discord.js-commando' {
 		parse?: Function;
 		isEmpty?: Function;
 		wait?: number;
+		autocomplete?(interaction: Interaction, focus: AutocompleteInteraction["options"]["data"][0]): Promise<AutocompleteRespond[]>;
 	}
 
 	export interface ArgumentResult {
@@ -416,6 +430,11 @@ declare module '@iceprod/discord.js-commando' {
 	}
 
 	type CommandGroupResolvable = CommandGroup | string;
+	interface InteractionsInfo {
+		type: "user" | "message" | "slash",
+		name?: string,
+		description?: string
+	}
 
 	export interface CommandInfo {
 		name: string;
@@ -443,6 +462,7 @@ declare module '@iceprod/discord.js-commando' {
 		guarded?: boolean;
 		hidden?: boolean;
 		unknown?: boolean;
+		interactions?: InteractionsInfo[];
 	}
 
 	export interface CommandoClientOptions extends ClientOptions {

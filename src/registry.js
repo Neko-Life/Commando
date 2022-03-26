@@ -70,7 +70,7 @@ class CommandoRegistry {
 		var commands = [];
 		for(const command of this.commands.values()) {
 			for(const interaction of command.interactions) {
-				commands.push({
+				const obj = {
 					name: interaction.name || command.name,
 					description: interaction.description || command.description,
 					defaultPermission: true,
@@ -78,15 +78,23 @@ class CommandoRegistry {
 					options: command.argsCollector ?
 						command.argsCollector.args.map(arg => Object.assign({
 							name: arg.key, description: arg.prompt,
-							required: !arg.default
-						}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } : {},
+							required: [null, undefined].includes(arg.default)
+						}, arg.oneOf ? { choices: arg.oneOf.map(choice => ({ name: choice, value: choice })) } :
+						arg.autocomplete ? { autocomplete: true } : {},
 						arg.slash || {}, (arg.type && arg.type.slash) || {})).map(arg => Object.assign(arg, { type: [
 							undefined, 'SUB_COMMAND', 'SUB_COMMAND_GROUP', 'STRING',
 							'INTEGER', 'BOOLEAN', 'USER', 'CHANNEL', 'ROLE',
 							'MENTIONABLE', 'NUMBER'
-						].indexOf(arg.type) })) :
-						[]
-				});
+						].indexOf(!arg.type ? "STRING" : arg.type) })) :
+						command.run.length === 2 ?
+					[{ name: "args", description: "Arguments", type: 3, required: true }] : []
+				};
+				if(obj.type > 1) {
+					delete obj.description;
+					delete obj.options;
+				}
+				if(obj.options?.length) obj.options.sort((a, b) => b.required - a.required);
+				commands.push(obj);
 			}
 		}
 		return commands;
@@ -113,7 +121,7 @@ class CommandoRegistry {
 	async registerSlashGlobally() {
 		this.client.emit('debug', 'Registering slash commands');
 		await this.rest.put(
-			Routes.applicationGuildCommands(this.client.user.id),
+			Routes.applicationCommands(this.client.user.id),
 			{ body: this._prepareCommandsForSlash() }
 		);
 		this.client.emit('debug', `Registered slash commands (globally)`);
@@ -204,11 +212,11 @@ class CommandoRegistry {
 				throw new Error(`A command with the name/alias "${alias}" is already registered.`);
 			}
 		}
-		for(const interaction of command.interactions) {
-			if(this.commands.some(cmd => cmd.name === interaction.name || (cmd.interactions && cmd.interactions.some((int) => int.name === interaction.name)))) {
-				throw new Error(`An interaction with the name "${interaction.name}" is already registered.`);
-			}
-		}
+		// for(const interaction of command.interactions) {
+		// 	if(this.commands.some(cmd => cmd.name === interaction.name || (cmd.interactions && cmd.interactions.some((int) => int.name === interaction.name)))) {
+		// 		throw new Error(`An interaction with the name "${interaction.name}" is already registered.`);
+		// 	}
+		// }
 		const group = this.groups.find(grp => grp.id === command.groupID);
 		if(!group) throw new Error(`Group "${command.groupID}" is not registered.`);
 		if(group.commands.some(cmd => cmd.memberName === command.memberName)) {
