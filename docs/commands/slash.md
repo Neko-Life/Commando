@@ -25,7 +25,7 @@ constructor(client) {
 }
 ```
 
-See the [documentation for SlashOptions](#docs/commando/next/typedefs/SlashOptions) for the docs about this object.
+See the [documentation for SlashOptions](#docs/commando/master/typedefs/SlashOptions) for the docs about this object.
 
 Autocomplete is supported, by setting the `autocomplete: true` in the SlashOption object, and then adding an `autocomplete` method to the type. It takes an interaction, and should return an array of objects `{ name: string, value: string }`.
 
