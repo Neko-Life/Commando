@@ -119,7 +119,7 @@ class Command {
 
 		/**
 		 * Whether the command is also a discord command. True for slash command.
-		 * @type {{ type: "user" | "message" | "slash", name?: string, description?: string }[]}
+		 * @type {CommandInteractionOptions[]}
 		 */
 		this.interactions = info.interactions ? (Array.isArray(info.interactions) ? info.interactions : [info.interactions]) : [];
 
