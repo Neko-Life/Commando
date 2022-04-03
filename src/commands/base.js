@@ -11,6 +11,12 @@ class Command {
 	 * @property {number} usages - Maximum number of usages of the command allowed in the time frame.
 	 * @property {number} duration - Amount of time to count the usages of the command within (in seconds).
 	 */
+	/**
+	 * @typedef {Object} CommandInteractionOptions
+	 * @property {"user" | "message" | "slash"} type - The option type (message and user context menus don't support any arguments and user won't be asked for them)
+	 * @property {string} [name] - The name to use instead of the default command name, allows spaces in user and message types.
+	 * @property {string} [description] - The description to use instead of the default command description.
+	*/
 
 	/**
 	 * @typedef {Object} CommandInfo
@@ -49,7 +55,7 @@ class Command {
 	 * @property {boolean} [hidden=false] - Whether the command should be hidden from the help command
 	 * @property {boolean} [unknown=false] - Whether the command should be run when an unknown command is used - there
 	 * may only be one command registered with this property as `true`.
-	 * @property {{ type: "user" | "message" | "slash", name?: string, description?: string } | { type: "user" | "message" | "slash", name?: string, description?: string }[]} [interactions] - Whether the command is a discord command (slash
+	 * @property {CommandInteractionOptions | CommandInteractionOptions[]} [interactions] - Whether the command is a discord command (slash
 	 * command, message right click or user right click command)
 	 */
 
@@ -113,7 +119,7 @@ class Command {
 
 		/**
 		 * Whether the command is also a discord command. True for slash command.
-		 * @type {{ type: "user" | "message" | "slash", name?: string, description?: string }[]}
+		 * @type {CommandInteractionOptions[]}
 		 */
 		this.interactions = info.interactions ? (Array.isArray(info.interactions) ? info.interactions : [info.interactions]) : [];
 
