@@ -182,6 +182,7 @@ class Argument {
 	 * @return {Promise<ArgumentResult>}
 	 */
 	async obtain(msg, val, promptLimit = Infinity) {
+		val = val?.replace?.(new RegExp("^<@\\!?" + msg.client.user.id + ">\\s?"), "");
 		let empty = this.isEmpty(val, msg);
 		if(empty && this.default !== null) {
 			return {
@@ -237,7 +238,7 @@ class Argument {
 			// Make sure they actually answered
 			if(responses && responses.size === 1) {
 				answers.push(responses.first());
-				val = answers[answers.length - 1].content;
+				val = answers[answers.length - 1].content?.replace?.(new RegExp("^<@\\!?" + msg.client.user.id + ">\\s?"), "");
 			} else {
 				return {
 					value: null,
